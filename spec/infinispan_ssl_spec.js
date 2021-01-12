@@ -13,7 +13,7 @@ describe('Infinispan TLS/SSL client', function() {
   // it('can operate on data via crypto store trusted encrypted transport',
   //    testSsl('trust-cryptostore', t.sslTrust, sslTrustCryptoStore())
   // );
-  //
+
   // it('can operate on data via authenticated encrypted transport',
   //    testSsl('auth', t.sslAuth, sslAuth())
   // );
@@ -30,53 +30,53 @@ describe('Infinispan TLS/SSL client', function() {
   //    testError(expectContainsError("Hostname/IP doesn't match certificate's altnames"),
   //              sslSniDefault())
   // );
-  //
-  // it('fails to operate if server name (SNI) and trusted certificate are incorrect',
-  //    testError(
-  //      expectAnyExactErrors(
-  //        ['CERT_SIGNATURE_FAILURE'
-  //          , 'certificate signature failure'
-  //          , 'self signed certificate in certificate chain'
-  //        ])
-  //      , sslSniUntrusted()
-  //    )
-  // );
-  //
+
+  it('fails to operate if server name (SNI) and trusted certificate are incorrect',
+     testError(
+       expectAnyExactErrors(
+         ['CERT_SIGNATURE_FAILURE'
+           , 'certificate signature failure'
+           , 'self signed certificate in certificate chain'
+         ])
+       , sslSniUntrusted()
+     )
+  );
+
   // it('fails to operate if server name (SNI) is not provided, but certificate is trusted',
   //     testError(expectAnyExactErrors(['CERT_SIGNATURE_FAILURE', 'self signed certificate']),
   //               sslSniDefaultWithTrustedCertificate())
   // );
   //
-  // it('fails to operate if server name (SNI) has no valid certificate',
-  //     testError(expectAnyExactErrors(['SELF_SIGNED_CERT_IN_CHAIN', 'self signed certificate in certificate chain']),
-  //               sslSniWithNoCert())
-  // );
-  //
-  // it('fails to operate if no passphrase provided for crypto store',
-  //    testError(expectAnyExactErrors(['No passphrase defined for crypto store']),
-  //              sslStoreNoPassphrase())
-  // );
-  //
-  // it('fails to operate if no path provided for crypto store',
-  //    testError(expectAnyExactErrors(['No path defined for crypto store']),
-  //              sslStoreNoPath())
-  // );
-  //
+  it('fails to operate if server name (SNI) has no valid certificate',
+      testError(expectAnyExactErrors(['SELF_SIGNED_CERT_IN_CHAIN', 'self signed certificate in certificate chain']),
+                sslSniWithNoCert())
+  );
+
+  it('fails to operate if no passphrase provided for crypto store',
+     testError(expectAnyExactErrors(['No passphrase defined for crypto store']),
+               sslStoreNoPassphrase())
+  );
+
+  it('fails to operate if no path provided for crypto store',
+     testError(expectAnyExactErrors(['No path defined for crypto store']),
+               sslStoreNoPath())
+  );
+
   // it('fails to operate if no encrypted transport is provided',
   //     testError(expectAnyExactErrors(['SELF_SIGNED_CERT_IN_CHAIN', 'self signed certificate']),
   //               sslStoreNoCryptoStore())
   // );
-  //
+
   // it('fails to operate if key for authenticated encrypted transport is missing',
   //     testError(expectAnyExactErrors(['CERT_SIGNATURE_FAILURE', 'self signed certificate']),
   //               sslAuthWithMissingKey())
   // );
-  //
+
   // it('fails to operate if passphrase for authenticated encrypted transport is missing',
   //     testError(expectAnyExactErrors(['CERT_SIGNATURE_FAILURE', 'self signed certificate']),
   //               sslAuthWithMissingPassphrase())
   // );
-  //
+
   // it('fails to operate if cert path for authenticated encrypted transport is missing',
   //     testError(expectAnyExactErrors(['CERT_SIGNATURE_FAILURE', 'self signed certificate']),
   //               sslAuthWithMissingCert())
@@ -109,6 +109,7 @@ describe('Infinispan TLS/SSL client', function() {
     return {
       ssl: {
         enabled: true,
+        secureProtocol: 'TLS_client_method',
         trustCerts: ['out/ssl/ca/ca.pem']
       },
       authentication: {
@@ -124,6 +125,7 @@ describe('Infinispan TLS/SSL client', function() {
     return {
       ssl: {
         enabled: true,
+        secureProtocol: 'TLS_client_method',
         cryptoStore: {
           path: 'out/ssl/client/client.p12',
           passphrase: 'secret'

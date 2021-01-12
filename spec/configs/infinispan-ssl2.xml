@@ -74,7 +74,7 @@
         <endpoints socket-binding="default" security-realm="ApplicationRealm">
             <hotrod-connector name="ssl-sni" socket-binding="hotrod-sni">
                 <topology-state-transfer lock-timeout="1000" replication-timeout="5000"/>
-                <encryption security-realm="UntrustRealm" require-ssl-client-auth="false">
+                <encryption security-realm="UntrustRealm">
                     <sni host-name="trust1" security-realm="Trust1Realm"/>
                     <sni host-name="trust2" security-realm="Trust2Realm"/>
                     <sni host-name="untrust" security-realm="ApplicationRealm"/>
