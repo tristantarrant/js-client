@@ -9,7 +9,7 @@ else
 fi
 
 
-SERVER_VERSION="11.0.7.Final"
+SERVER_VERSION="12.0.0.Final"
 SERVER_HOME=server/infinispan-server-$SERVER_VERSION
 CLUSTER_SIZE_MAIN="$SERVER_HOME/bin/cli.sh -c http://admin:pass@localhost:11322 -f batch "
 ZIP_ROOT="http://downloads.jboss.org/infinispan"
@@ -75,11 +75,11 @@ function prepareServerDir()
     fi
 
     if [[ ${isSsl} = "true" ]]; then
-        cp out/ssl/ca/ca.jks $SERVER_TMP/${dirName}/conf
-        cp out/ssl/server/server.jks $SERVER_TMP/${dirName}/conf
-        cp out/ssl/sni-trust1/trust1.jks $SERVER_TMP/${dirName}/conf
-        cp out/ssl/sni-trust2/trust2.jks $SERVER_TMP/${dirName}/conf
-        cp out/ssl/sni-untrust/untrust.jks $SERVER_TMP/${dirName}/conf
+        cp out/ssl/ca/ca.p12 $SERVER_TMP/${dirName}/conf
+        cp out/ssl/server/server.p12 $SERVER_TMP/${dirName}/conf
+        cp out/ssl/sni-trust1/trust1.p12 $SERVER_TMP/${dirName}/conf
+        cp out/ssl/sni-trust2/trust2.p12 $SERVER_TMP/${dirName}/conf
+        cp out/ssl/sni-untrust/untrust.p12 $SERVER_TMP/${dirName}/conf
         echo "Security key and trust stores copied to temporary server."
     fi
     export SERVER_TMP=${SERVER_TMP}

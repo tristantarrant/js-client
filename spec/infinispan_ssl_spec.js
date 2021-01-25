@@ -10,9 +10,9 @@ describe('Infinispan TLS/SSL client', function() {
      testSsl('trust', t.sslTrust, sslTrust())
   );
 
-  // it('can operate on data via crypto store trusted encrypted transport',
-  //    testSsl('trust-cryptostore', t.sslTrust, sslTrustCryptoStore())
-  // );
+  it('can operate on data via crypto store trusted encrypted transport',
+     testSsl('trust-cryptostore', t.sslTrust, sslTrustCryptoStore())
+  );
 
   // it('can operate on data via authenticated encrypted transport',
   //    testSsl('auth', t.sslAuth, sslAuth())
@@ -47,6 +47,7 @@ describe('Infinispan TLS/SSL client', function() {
   //               sslSniDefaultWithTrustedCertificate())
   // );
   //
+
   it('fails to operate if server name (SNI) has no valid certificate',
       testError(expectAnyExactErrors(['SELF_SIGNED_CERT_IN_CHAIN', 'self signed certificate in certificate chain']),
                 sslSniWithNoCert())

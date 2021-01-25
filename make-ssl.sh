@@ -28,7 +28,7 @@ create_keystore() {
       -storepass $PASS \
       -keyalg RSA \
       -keysize 2048 \
-      -storetype JKS
+      -storetype PKCS12
 }
 
 
@@ -58,7 +58,7 @@ sign_certificate() {
 
    local ca_alias="infinispan-$ca"
    local ca_dir=${ROOT}/ssl/$ca
-   local ca_keystore="$ca.jks"
+   local ca_keystore="$ca.p12"
 
    keytool -gencert \
       -alias $ca_alias \
@@ -77,7 +77,7 @@ import_ca() {
 
    local ca_alias="infinispan-$ca"
    local ca_dir=${ROOT}/ssl/$ca
-   local ca_keystore="$ca.jks"
+   local ca_keystore="$ca.p12"
 
    keytool -importkeystore \
       -srcalias $ca_alias \
@@ -112,7 +112,7 @@ keystore_to_p12() {
    keytool -importkeystore \
       -srckeystore $dir/$keystore \
       -destkeystore $dir/$p12store \
-      -srcstoretype jks \
+      -srcstoretype pkcs12 \
       -deststoretype pkcs12 \
       -srcstorepass $PASS \
       -deststorepass $PASS
@@ -141,7 +141,7 @@ make_ca() {
    local dir=${ROOT}/ssl/$name
    local alias="infinispan-$name"
    local dname="CN=CA,OU=Infinispan,O=JBoss,L=RedHat"
-   local keystore="$name.jks"
+   local keystore="$name.p12"
    local p12store="$name.p12"
    local pem="$name.pem"
    local pass="secret"
@@ -158,14 +158,14 @@ make_ca() {
       -storepass $pass \
       -keyalg RSA \
       -keysize 2048 \
-      -storetype JKS \
+      -storetype pkcs12 \
       -ext bc:c
 
    # Convert into a p12 keystore
    keytool -importkeystore \
       -srckeystore $dir/$keystore \
       -destkeystore $dir/$p12store \
-      -srcstoretype jks \
+      -srcstoretype pkcs12 \
       -deststoretype pkcs12 \
       -srcstorepass $pass \
       -deststorepass $pass
@@ -189,14 +189,14 @@ make_server_keystore() {
    # Hostname/IP doesn't match certificate's altnames: "Host: localhost. is not cert's CN: Server"
    local dname="CN=localhost,OU=Infinispan,O=JBoss,L=RedHat"
 
-   local keystore="server.jks"
+   local keystore="server.p12"
    local p12store="server.p12"
    local csr="server.csr"
    local pass="secret"
    local cer="server.cer"
 
    local ca_dir=${ROOT}/ssl/$ca # TODO global
-   local ca_keystore="$ca.jks" # TODO global
+   local ca_keystore="$ca.p12" # TODO global
    local ca_alias="infinispan-$ca" # TODO global
 
    # Make directories to work from
@@ -240,7 +240,7 @@ make_server_keystore() {
    keytool -importkeystore \
       -srckeystore $dir/$keystore \
       -destkeystore $dir/$p12store \
-      -srcstoretype jks \
+      -srcstoretype pkcs12 \
       -deststoretype pkcs12 \
       -srcstorepass $pass \
       -deststorepass $pass
@@ -256,7 +256,7 @@ make_client_keystore() {
    # Hostname/IP doesn't match certificate's altnames: "Host: localhost. is not cert's CN: Server"
    local dname="CN=localhost,OU=Infinispan,O=JBoss,L=RedHat"
 
-   local keystore="client.jks"
+   local keystore="client.p12"
    local p12store="client.p12"
    local pass="secret"
    local csr="client.csr"
@@ -296,7 +296,7 @@ make_sni() {
    # CN has to match Hostname/IP
    local dname="CN=$host,OU=Infinispan,O=JBoss,L=RedHat"
 
-   local keystore="$host.jks"
+   local keystore="$host.p12"
    local p12store="$host.p12"
    local csr="$host.csr"
    local cer="$host.cer"
