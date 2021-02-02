@@ -24,7 +24,6 @@ create_keystore() {
       -alias $alias \
       -dname $dname \
       -keystore $dir/$keystore \
-      -keypass $PASS \
       -storepass $PASS \
       -keyalg RSA \
       -keysize 2048 \
@@ -154,7 +153,6 @@ make_ca() {
       -alias $alias \
       -dname $dname \
       -keystore $dir/$keystore \
-      -keypass $pass \
       -storepass $pass \
       -keyalg RSA \
       -keysize 2048 \

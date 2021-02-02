@@ -77,6 +77,7 @@ function prepareServerDir()
     if [[ ${isSsl} = "true" ]]; then
         cp out/ssl/ca/ca.p12 $SERVER_TMP/${dirName}/conf
         cp out/ssl/server/server.p12 $SERVER_TMP/${dirName}/conf
+        cp out/ssl/client/client.p12 $SERVER_TMP/${dirName}/conf
         cp out/ssl/sni-trust1/trust1.p12 $SERVER_TMP/${dirName}/conf
         cp out/ssl/sni-trust2/trust2.p12 $SERVER_TMP/${dirName}/conf
         cp out/ssl/sni-untrust/untrust.p12 $SERVER_TMP/${dirName}/conf
@@ -119,8 +120,8 @@ export JAVA_OPTS="-Xms512m -Xmx1024m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize
 #startServer "$1" infinispan-clustered.xml false 11332 "server-two"
 #startServer "$1" infinispan-clustered.xml false 11342 "server-three"
 startServer "$1" infinispan-ssl.xml true 11622 "server-ssl"
-startServer "$1" infinispan-ssl1.xml true 11632 "server-ssl1"
-startServer "$1" infinispan-ssl2.xml true 11642 "server-ssl2"
+#startServer "$1" infinispan-ssl1.xml true 11632 "server-ssl1"
+#startServer "$1" infinispan-ssl2.xml true 11642 "server-ssl2"
 #
 ##Preparing server dirs for failover tests (3 servers)
 #prepareServerDir "$1" infinispan-clustered.xml false "server-failover-one"
@@ -144,3 +145,4 @@ else
     sleep 5
   done
 fi
+

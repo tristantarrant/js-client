@@ -8,12 +8,12 @@
     <cache-container name="local" default-cache="default" statistics="true">
         <global-state/>
         <local-cache name="default">
-            <locking acquire-timeout="30000" concurrency-level="1000"/>
             <encoding media-type="text/plain"/>
+            <locking acquire-timeout="30000" concurrency-level="1000"/>
         </local-cache>
         <local-cache name="memcachedCache">
-            <locking acquire-timeout="30000" concurrency-level="1000" />
             <encoding media-type="text/plain"/>
+            <locking acquire-timeout="30000" concurrency-level="1000" />
         </local-cache>
         <local-cache name="namedCache">
             <encoding media-type="text/plain"/>
@@ -29,7 +29,6 @@
 
         <socket-bindings default-interface="public" port-offset="${infinispan.socket.binding.port-offset:0}">
             <socket-binding name="default" port="${infinispan.bind.port:11622}" />
-            <socket-binding name="memcached" port="11221" />
             <socket-binding name="hotrod-trust" port="11232" />
         </socket-bindings>
 
@@ -40,59 +39,61 @@
                 </credential-store>
             </credential-stores>
             <security-realms>
-                <security-realm name="ApplicationRealm">
+                <security-realm name="default">
                     <server-identities>
                         <ssl>
-                            <keystore path="server.p12" relative-to="infinispan.server.config.path" keystore-password="secret"/>
+                            <keystore path="server.p12" keystore-password="secret" alias="server"/>
                         </ssl>
                     </server-identities>
                     <properties-realm groups-attribute="Roles">
-                        <user-properties path="users.properties" relative-to="infinispan.server.config.path" plain-text="true"/>
-                        <group-properties path="groups.properties" relative-to="infinispan.server.config.path" />
+                        <user-properties path="users.properties"/>
+                        <group-properties path="groups.properties"/>
                     </properties-realm>
-                    <truststore-realm path="ca.p12" relative-to="infinispan.server.config.path" keystore-password="secret"/>
                 </security-realm>
                 <security-realm name="client-cert">
                     <server-identities>
                         <ssl>
-                            <keystore path="server.p12" relative-to="infinispan.server.config.path" keystore-password="password" alias="server"/>
+                            <keystore path="server.p12" keystore-password="secret" alias="server"/>
                         </ssl>
                     </server-identities>
-                    <truststore-realm path="client.p12" relative-to="infinispan.server.data.path" keystore-password="password"/>
+                    <properties-realm groups-attribute="Roles">
+                        <user-properties path="users.properties"/>
+                        <group-properties path="groups.properties"/>
+                    </properties-realm>
+                    <!--truststore-realm path="client.p12" keystore-password="secret"/-->
                 </security-realm>
                 <security-realm name="Trust1Realm">
                     <server-identities>
                         <ssl>
-                            <keystore path="trust1.p12" relative-to="infinispan.server.config.path" keystore-password="secret"/>
+                            <keystore path="trust1.p12" keystore-password="secret"/>
                         </ssl>
                     </server-identities>
                 </security-realm>
                 <security-realm name="Trust2Realm">
                     <server-identities>
                         <ssl>
-                            <keystore path="trust2.p12" relative-to="infinispan.server.config.path" keystore-password="secret"/>
+                            <keystore path="trust2.p12" keystore-password="secret"/>
                         </ssl>
                     </server-identities>
                 </security-realm>
                 <security-realm name="UntrustRealm">
                     <server-identities>
                         <ssl>
-                            <keystore path="untrust.p12" relative-to="infinispan.server.config.path" keystore-password="secret"/>
+                            <keystore path="untrust.p12" keystore-password="secret"/>
                         </ssl>
                     </server-identities>
                 </security-realm>
             </security-realms>
         </security>
 
-        <endpoints socket-binding="default" security-realm="ApplicationRealm">
-            <hotrod-connector name="ssl-trust" socket-binding="hotrod-trust">
-                <topology-state-transfer lock-timeout="1000" replication-timeout="5000"/>
-                <encryption security-realm="client-cert"  require-ssl-client-auth="true"/>
-                <authentication security-realm="client-cert"/>
-            </hotrod-connector>
-            <rest-connector name="rest"/>
-            <!-- Uncomment to enable the memcached connector -->
-            <!-- memcached-connector socket-binding="memcached" / -->
+        <endpoints socket-binding="default" security-realm="default">
+            <hotrod-connector/>
+            <rest-connector/>
+        </endpoints>
+
+        <endpoints socket-binding="hotrod-trust" security-realm="client-cert">
+            <hotrod-connector/>
+            <rest-connector/>
         </endpoints>
     </server>
 </infinispan>
