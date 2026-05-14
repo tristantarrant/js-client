@@ -3,8 +3,8 @@
 const ispn = require('infinispan');
 const protobuf = require('protobufjs');
 
-const instaPostProto = `package tutorial;
-syntax = "proto3";
+const instaPostProto = `syntax = "proto3";
+package tutorial;
 /**
  * @TypeId(1000050)
  */
@@ -14,12 +14,16 @@ message InstaPost {
     string hashtag = 3;
 }`;
 
+const host = process.env.ISPN_HOST || '127.0.0.1';
+const port = parseInt(process.env.ISPN_PORT || '11222');
+const password = process.env.ISPN_PASSWORD || 'password';
+
 const authOpts = {
   authentication: {
     enabled: true,
     saslMechanism: 'PLAIN',
     userName: 'admin',
-    password: 'password'
+    password
   }
 };
 
@@ -32,7 +36,7 @@ async function main() {
   const InstaPost = root.lookupType('.tutorial.InstaPost');
 
   // Register the schema on the server
-  const metaClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const metaClient = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: '___protobuf_metadata',
     dataFormat: {keyType: 'text/plain', valueType: 'text/plain'}
@@ -46,7 +50,7 @@ async function main() {
   }
 
   // Connect to a protostream cache
-  const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const client = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: 'protoStreamCache',
     dataFormat: {
@@ -70,7 +74,7 @@ async function main() {
     let matchCount = 0;
     cq.on('joining', function(key, value) {
       matchCount++;
-      console.log('[JOINING] @belen_esteban posted! (total: ' + matchCount + ')');
+      console.log(`[JOINING] @belen_esteban posted! (total: ${  matchCount  })`);
     });
 
     cq.on('leaving', function(key) {
@@ -84,15 +88,15 @@ async function main() {
     const numPosts = 20;
     for (let i = 0; i < numPosts; i++) {
       const user = users[Math.floor(Math.random() * users.length)];
-      const post = InstaPost.create({id: 'post-' + i, user: user, hashtag: 'infinispan'});
+      const post = InstaPost.create({id: `post-${  i}`, user: user, hashtag: 'infinispan'});
       await client.put(i, post);
     }
 
     // Wait for events to be delivered
     await sleep(2000);
 
-    console.log('\nTotal posts: ' + numPosts);
-    console.log('Posts by @belen_esteban: ' + matchCount);
+    console.log(`\nTotal posts: ${  numPosts}`);
+    console.log(`Posts by @belen_esteban: ${  matchCount}`);
 
     // Remove the continuous query
     await client.removeContinuousQuery(cq);
@@ -104,7 +108,7 @@ async function main() {
   }
 
   // Clean up schema
-  const cleanupClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const cleanupClient = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: '___protobuf_metadata',
     dataFormat: {keyType: 'text/plain', valueType: 'text/plain'}

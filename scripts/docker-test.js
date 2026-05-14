@@ -112,5 +112,18 @@ const result = spawnSync('npx', ['jasmine'].concat(process.argv.slice(2)), {
   env: process.env,
 });
 
+// Step 6: Run examples if tests passed
+if (result.status === 0) {
+  console.log('\nVerifying examples...');
+  const exResult = spawnSync('node', ['scripts/check-examples.js'], {
+    stdio: 'inherit',
+    env: process.env,
+  });
+  if (exResult.status !== 0) {
+    cleanup();
+    process.exit(exResult.status);
+  }
+}
+
 cleanup();
 process.exit(result.status);

@@ -2,13 +2,17 @@
 
 const ispn = require('infinispan');
 
+const host = process.env.ISPN_HOST || '127.0.0.1';
+const port = parseInt(process.env.ISPN_PORT || '11222');
+const password = process.env.ISPN_PASSWORD || 'password';
+
 async function main() {
-  const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const client = await ispn.client({port, host}, {
     authentication: {
       enabled: true,
       saslMechanism: 'PLAIN',
       userName: 'admin',
-      password: 'password'
+      password
     }
   });
 
@@ -23,27 +27,27 @@ async function main() {
 
     // Increment the counter
     let val = await client.counterAddAndGet('visits', 1);
-    console.log('After +1: ' + val);
+    console.log(`After +1: ${  val}`);
     val = await client.counterAddAndGet('visits', 5);
-    console.log('After +5: ' + val);
+    console.log(`After +5: ${  val}`);
 
     // Get current value
     val = await client.counterGet('visits');
-    console.log('Current value: ' + val);
+    console.log(`Current value: ${  val}`);
 
     // Compare and swap
     const prev = await client.counterCompareAndSwap('visits', 6, 100);
-    console.log('\nCAS(expect=6, update=100): previous=' + prev);
-    console.log('After CAS: ' + await client.counterGet('visits'));
+    console.log(`\nCAS(expect=6, update=100): previous=${  prev}`);
+    console.log(`After CAS: ${  await client.counterGet('visits')}`);
 
     // Failed CAS (expected value doesn't match)
     const prev2 = await client.counterCompareAndSwap('visits', 6, 200);
-    console.log('\nCAS(expect=6, update=200): previous=' + prev2);
-    console.log('After failed CAS: ' + await client.counterGet('visits'));
+    console.log(`\nCAS(expect=6, update=200): previous=${  prev2}`);
+    console.log(`After failed CAS: ${  await client.counterGet('visits')}`);
 
     // Reset to initial value
     await client.counterReset('visits');
-    console.log('\nAfter reset: ' + await client.counterGet('visits'));
+    console.log(`\nAfter reset: ${  await client.counterGet('visits')}`);
 
     // Create a weak counter
     await client.counterCreate('page-views', {
@@ -59,11 +63,11 @@ async function main() {
     await client.counterAddAndGet('page-views', 1);
     await client.counterAddAndGet('page-views', 1);
     val = await client.counterGet('page-views');
-    console.log('page-views after 3 increments: ' + val);
+    console.log(`page-views after 3 increments: ${  val}`);
 
     // Get counter configuration
     const config = await client.counterGetConfiguration('visits');
-    console.log('\n"visits" config: type=' + config.type + ', initialValue=' + config.initialValue);
+    console.log(`\n"visits" config: type=${  config.type  }, initialValue=${  config.initialValue}`);
 
     // Clean up
     await client.counterRemove('visits');

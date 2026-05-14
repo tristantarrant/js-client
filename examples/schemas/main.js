@@ -2,6 +2,10 @@
 
 const ispn = require('infinispan');
 
+const host = process.env.ISPN_HOST || '127.0.0.1';
+const port = parseInt(process.env.ISPN_PORT || '11222');
+const password = process.env.ISPN_PASSWORD || 'password';
+
 const personProto = `syntax = "proto3";
 package tutorial;
 
@@ -18,7 +22,7 @@ message Person {
 }`;
 
 async function main() {
-  const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const client = await ispn.client({port, host}, {
     cacheName: '___protobuf_metadata',
     dataFormat: {
       keyType: 'text/plain',
@@ -28,7 +32,7 @@ async function main() {
       enabled: true,
       saslMechanism: 'PLAIN',
       userName: 'admin',
-      password: 'password'
+      password
     }
   });
 
@@ -45,7 +49,7 @@ async function main() {
     // Check for errors (Infinispan stores errors in a .errors suffix key)
     const errors = await client.get('person.proto.errors');
     if (errors) {
-      console.log('\nSchema errors: ' + errors);
+      console.log(`\nSchema errors: ${  errors}`);
     } else {
       console.log('\nNo schema errors.');
     }

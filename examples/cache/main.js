@@ -2,13 +2,17 @@
 
 const ispn = require('infinispan');
 
+const host = process.env.ISPN_HOST || '127.0.0.1';
+const port = parseInt(process.env.ISPN_PORT || '11222');
+const password = process.env.ISPN_PASSWORD || 'password';
+
 async function main() {
-  const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const client = await ispn.client({port, host}, {
     authentication: {
       enabled: true,
       saslMechanism: 'PLAIN',
       userName: 'admin',
-      password: 'password'
+      password
     }
   });
 
@@ -16,11 +20,11 @@ async function main() {
     // Put and get a single entry
     await client.put('name', 'Infinispan');
     const name = await client.get('name');
-    console.log('get(name) = ' + name);
+    console.log(`get(name) = ${  name}`);
 
     // Check if a key exists
     const exists = await client.containsKey('name');
-    console.log('containsKey(name) = ' + exists);
+    console.log(`containsKey(name) = ${  exists}`);
 
     // Put multiple entries at once
     const entries = [
@@ -34,25 +38,25 @@ async function main() {
     const keys = entries.map(e => e.key);
     const result = await client.getAll(keys);
     console.log('\nBulk operations:');
-    result.forEach((value, key) => console.log('  ' + key + ' = ' + value));
+    result.forEach((value, key) => console.log(`  ${  key  } = ${  value}`));
 
     // Replace a value
     const replaced = await client.replace('key1', 'newValue1');
-    console.log('\nreplaced key1: ' + replaced);
-    console.log('get(key1) = ' + await client.get('key1'));
+    console.log(`\nreplaced key1: ${  replaced}`);
+    console.log(`get(key1) = ${  await client.get('key1')}`);
 
     // Remove an entry
     const removed = await client.remove('key2');
-    console.log('\nremoved key2: ' + removed);
-    console.log('get(key2) = ' + await client.get('key2'));
+    console.log(`\nremoved key2: ${  removed}`);
+    console.log(`get(key2) = ${  await client.get('key2')}`);
 
     // Get cache size
     const size = await client.size();
-    console.log('\nCache size: ' + size);
+    console.log(`\nCache size: ${  size}`);
 
     // Clear the cache
     await client.clear();
-    console.log('Cache cleared. Size: ' + await client.size());
+    console.log(`Cache cleared. Size: ${  await client.size()}`);
   } finally {
     await client.disconnect();
   }

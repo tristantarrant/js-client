@@ -3,8 +3,8 @@
 const ispn = require('infinispan');
 const protobuf = require('protobufjs');
 
-const personProto = `package tutorial;
-syntax = "proto3";
+const personProto = `syntax = "proto3";
+package tutorial;
 /**
  * @TypeId(1000042)
  */
@@ -22,12 +22,16 @@ const people = [
   {firstName: 'Draco',    lastName: 'Malfoy',  bornYear: 1980, bornIn: 'London'}
 ];
 
+const host = process.env.ISPN_HOST || '127.0.0.1';
+const port = parseInt(process.env.ISPN_PORT || '11222');
+const password = process.env.ISPN_PASSWORD || 'password';
+
 const authOpts = {
   authentication: {
     enabled: true,
     saslMechanism: 'PLAIN',
     userName: 'admin',
-    password: 'password'
+    password
   }
 };
 
@@ -37,7 +41,7 @@ async function main() {
   const Person = root.lookupType('.tutorial.Person');
 
   // Register the schema on the server
-  const metaClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const metaClient = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: '___protobuf_metadata',
     dataFormat: {keyType: 'text/plain', valueType: 'text/plain'}
@@ -51,7 +55,7 @@ async function main() {
   }
 
   // Connect to the protostream cache
-  const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const client = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: 'protoStreamCache',
     dataFormat: {
@@ -71,29 +75,29 @@ async function main() {
       const message = Person.create(people[i]);
       await client.put(i, message);
     }
-    console.log('Added ' + people.length + ' people.\n');
+    console.log(`Added ${  people.length  } people.\n`);
 
     // Query all
     console.log('=== Query all ===');
     const all = await client.query({
       queryString: 'from tutorial.Person'
     });
-    console.log('Total results: ' + all.length);
-    all.forEach(p => console.log('  ' + p.firstName + ' ' + p.lastName));
+    console.log(`Total results: ${  all.length}`);
+    all.forEach(p => console.log(`  ${  p.firstName  } ${  p.lastName}`));
 
     // Query with filter
     console.log('\n=== Query: people with lastName = \'Granger\' ===');
     const grangers = await client.query({
-      queryString: "from tutorial.Person p where p.lastName = 'Granger'"
+      queryString: 'from tutorial.Person p where p.lastName = \'Granger\''
     });
-    grangers.forEach(p => console.log('  ' + p.firstName + ' ' + p.lastName));
+    grangers.forEach(p => console.log(`  ${  p.firstName  } ${  p.lastName}`));
 
     // Query with projection
     console.log('\n=== Query: projection of people born in London ===');
     const londonNames = await client.query({
-      queryString: "select p.firstName, p.lastName from tutorial.Person p where p.bornIn = 'London'"
+      queryString: 'select p.firstName, p.lastName from tutorial.Person p where p.bornIn = \'London\''
     });
-    londonNames.forEach(row => console.log('  ' + row[0] + ' ' + row[1]));
+    londonNames.forEach(row => console.log(`  ${  row[0]  } ${  row[1]}`));
 
     await client.clear();
     console.log('\nCache cleared.');
@@ -102,7 +106,7 @@ async function main() {
   }
 
   // Clean up schema
-  const cleanupClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+  const cleanupClient = await ispn.client({port, host}, {
     ...authOpts,
     cacheName: '___protobuf_metadata',
     dataFormat: {keyType: 'text/plain', valueType: 'text/plain'}
