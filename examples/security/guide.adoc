@@ -1,0 +1,101 @@
+= Security and Authentication
+:summary: Connect to Infinispan with different SASL authentication mechanisms
+:mode: remote
+:topics: security
+:keywords: security,authentication,sasl,plain,scram,credentials,javascript
+:duration: 5
+:source-dir: examples/security
+
+== What You Will Learn
+
+How to connect to an Infinispan Server using different SASL authentication mechanisms (PLAIN and SCRAM-SHA-256), and how the client behaves when credentials are invalid.
+
+== Prerequisites
+
+* Node.js 24+
+* An Infinispan Server running on `localhost:11222`
+
+Start an Infinispan Server with Docker:
+
+[source,shell]
+----
+docker run -it --rm -p 11222:11222 -e USER=admin -e PASS=password quay.io/infinispan/server:latest
+----
+
+== Step 1: Connect with PLAIN Authentication
+
+The simplest authentication mechanism sends credentials in plain text (use with TLS in production):
+
+[source,javascript]
+----
+const client = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+    authentication: {
+        enabled: true,
+        saslMechanism: 'PLAIN',
+        userName: 'admin',
+        password: 'password'
+    }
+});
+----
+
+== Step 2: Handle Authentication Failures
+
+Connecting with wrong credentials throws an error:
+
+[source,javascript]
+----
+try {
+    const badClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+        authentication: {
+            enabled: true,
+            saslMechanism: 'PLAIN',
+            userName: 'admin',
+            password: 'wrongpassword'
+        }
+    });
+} catch (err) {
+    console.log('Connection failed: ' + err.message);
+}
+----
+
+== Step 3: SCRAM-SHA-256 Authentication
+
+Use SCRAM-SHA-256 for challenge-response authentication that does not send the password in plain text:
+
+[source,javascript]
+----
+const scramClient = await ispn.client({port: 11222, host: '127.0.0.1'}, {
+    authentication: {
+        enabled: true,
+        saslMechanism: 'SCRAM-SHA-256',
+        userName: 'admin',
+        password: 'password'
+    }
+});
+----
+
+== Step 4: Build and Run
+
+[source,shell]
+----
+node examples/security/main.js
+----
+
+You should see output like:
+
+----
+Successfully put and got value: value
+
+Attempting connection with wrong credentials...
+Connection failed as expected: ...
+
+Connecting with SCRAM-SHA-256 mechanism...
+SCRAM-SHA-256 auth successful: scram-value
+
+Done.
+----
+
+== What's Next
+
+* link:../cache/guide.html[Basic cache operations] for standard cache usage
+* link:../listeners/guide.html[Cache event listeners] for reacting to cache changes
